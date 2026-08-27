@@ -1,0 +1,28 @@
+{
+ "actions": [],
+ "autoname": "field:feedback_key",
+ "creation": "2026-08-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["feedback_key", "article", "user", "value", "responded_at"],
+ "fields": [
+  {"fieldname": "feedback_key", "fieldtype": "Data", "hidden": 1, "label": "Ключ", "unique": 1},
+  {"fieldname": "article", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Статья", "options": "KB Article", "reqd": 1, "search_index": 1},
+  {"fieldname": "user", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Сотрудник", "options": "User", "reqd": 1, "search_index": 1},
+  {"fieldname": "value", "fieldtype": "Select", "in_list_view": 1, "in_standard_filter": 1, "label": "Ответ", "options": "Yes\nNo", "reqd": 1},
+  {"fieldname": "responded_at", "fieldtype": "Datetime", "in_list_view": 1, "label": "Дата ответа", "reqd": 1}
+ ],
+ "links": [],
+ "modified": "2026-08-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Skoro KB",
+ "name": "KB Article Feedback",
+ "owner": "Administrator",
+ "permissions": [
+  {"export": 1, "read": 1, "report": 1, "role": "KB Manager"},
+  {"read": 1, "report": 1, "role": "KB Editor"}
+ ],
+ "sort_field": "responded_at",
+ "sort_order": "DESC",
+ "states": []
+}

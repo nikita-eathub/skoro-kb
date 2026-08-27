@@ -1,0 +1,529 @@
+{% extends "templates/web.html" %}
+
+{% block title %}База знаний — Скоро Пицца{% endblock %}
+
+{% block head_include %}
+{{ super() }}
+<link rel="stylesheet" href="/assets/skoro_kb/css/kb.css">
+{% endblock %}
+
+{% block page_content %}
+<div id="skoro-kb-app" data-csrf-token="{{ csrf_token | e }}" data-user-name="{{ user_full_name | e }}" data-can-edit="{{ 1 if can_edit else 0 }}">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand-area">
+        <button class="icon-button mobile-only" id="menuButton" type="button" aria-label="Открыть разделы" aria-expanded="false">☰</button>
+        <div class="brand-lockup" aria-label="Скоро Пицца — База знаний">
+          <img class="brand-logo" src="/assets/skoro_kb/images/logo-sp.png" alt="Логотип Скоро Пицца">
+          <div class="brand-text">
+            <strong>База знаний</strong>
+          </div>
+        </div>
+        <span class="prototype-badge">Тестовый контур</span>
+      </div>
+
+      <div class="header-main">
+        <nav class="breadcrumbs" aria-label="Навигационная цепочка">
+          <span>База знаний</span>
+          <span aria-hidden="true">›</span>
+          <span id="breadcrumbSection">Работа в пиццерии</span>
+          <span aria-hidden="true">›</span>
+          <strong id="breadcrumbTitle">Новая статья</strong>
+        </nav>
+
+        <div class="header-actions">
+          <span id="saveState" class="save-state" role="status" aria-live="polite">Новый черновик</span>
+          <button class="button ghost compact-hide" id="settingsButton" type="button">Настройки</button>
+          <button class="button ghost" id="modeButton" type="button" aria-pressed="false">Предпросмотр</button>
+          <button class="button secondary compact-hide" id="saveButton" type="button">Сохранить</button>
+          <button class="button primary" id="publishButton" type="button">Опубликовать</button>
+          <button class="icon-button" id="moreButton" type="button" aria-label="Дополнительные действия" aria-expanded="false">•••</button>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar" aria-label="Разделы Базы знаний">
+      <div class="sidebar-tools">
+        <label class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <span class="sr-only">Поиск по прототипу</span>
+          <input id="articleSearch" type="search" placeholder="Поиск">
+        </label>
+        <button class="new-button" id="newArticleButton" type="button" aria-label="Создать новую статью">＋</button>
+      </div>
+
+      <nav class="knowledge-tree" aria-label="Дерево статей">
+        <button class="tree-root active" type="button">
+          <span class="tree-icon" aria-hidden="true">▤</span>
+          <span>Все материалы</span>
+          <span class="count">12</span>
+        </button>
+
+        <div class="tree-section" data-section="Работа в пиццерии" data-searchable="работа в пиццерии приемка товара открытие смены">
+          <button class="tree-folder" type="button" aria-expanded="true">
+            <span aria-hidden="true">⌄</span>
+            <strong>Работа в пиццерии</strong>
+          </button>
+          <div class="tree-children">
+            <button class="tree-article selected" type="button" data-article="delivery">Как принять поставку без ошибок</button>
+            <button class="tree-article" type="button" data-article="shift">Открытие смены</button>
+          </div>
+        </div>
+
+        <div class="tree-section" data-section="Управляющая компания" data-searchable="управляющая компания команда отделы регламенты">
+          <button class="tree-folder" type="button" aria-expanded="true">
+            <span aria-hidden="true">⌄</span>
+            <strong>Управляющая компания</strong>
+          </button>
+          <div class="tree-children">
+            <button class="tree-article" type="button" data-article="team">Команда управляющей компании</button>
+            <button class="tree-article" type="button" data-article="regulations">Регламенты отделов</button>
+          </div>
+        </div>
+
+        <div class="tree-section" data-section="Обучение" data-searchable="обучение курсы наставничество">
+          <button class="tree-folder" type="button" aria-expanded="false">
+            <span aria-hidden="true">›</span>
+            <strong>Обучение</strong>
+          </button>
+          <div class="tree-children" hidden>
+            <button class="tree-article" type="button" data-article="mentor">Работа с наставником</button>
+          </div>
+        </div>
+
+        <div class="tree-section" data-section="Франчайзи" data-searchable="франчайзи партнёры документы">
+          <button class="tree-folder" type="button" aria-expanded="false">
+            <span aria-hidden="true">›</span>
+            <strong>Франчайзи</strong>
+          </button>
+          <div class="tree-children" hidden></div>
+        </div>
+      </nav>
+
+      <div id="searchEmpty" class="search-empty" hidden>Ничего не найдено</div>
+
+      <div class="sidebar-bottom">
+        <button class="tree-root" type="button"><span class="tree-icon" aria-hidden="true">▱</span><span>Черновики</span><span class="count">1</span></button>
+        <button class="tree-root" type="button"><span class="tree-icon" aria-hidden="true">□</span><span>Архив</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section id="editorView" class="editor-view" aria-label="Редактирование статьи">
+        <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Форматирование текста">
+          <div class="toolbar-group">
+            <button class="tool-button" type="button" data-command="undo" title="Отменить" aria-label="Отменить">↶</button>
+            <button class="tool-button" type="button" data-command="redo" title="Повторить" aria-label="Повторить">↷</button>
+          </div>
+          <div class="toolbar-group">
+            <label class="sr-only" for="headingSelect">Стиль текста</label>
+            <select class="heading-select" id="headingSelect" title="Стиль текста">
+              <option value="p">Текст</option>
+              <option value="h2">Заголовок 2</option>
+              <option value="h3">Заголовок 3</option>
+            </select>
+          </div>
+          <div class="toolbar-group">
+            <button class="tool-button text-tool" type="button" data-command="bold" title="Полужирный" aria-label="Полужирный"><strong>B</strong></button>
+            <button class="tool-button text-tool" type="button" data-command="italic" title="Курсив" aria-label="Курсив"><em>I</em></button>
+            <button class="tool-button text-tool" type="button" data-command="underline" title="Подчёркивание" aria-label="Подчёркивание"><u>U</u></button>
+            <button class="tool-button text-tool" type="button" data-command="strikeThrough" title="Зачёркивание" aria-label="Зачёркивание"><s>S</s></button>
+          </div>
+          <div class="toolbar-group">
+            <button class="tool-button color-tool" id="textColorButton" type="button" data-color-mode="foreColor" title="Цвет текста" aria-label="Изменить цвет текста" aria-expanded="false"><span>A</span><i class="color-indicator text-indicator"></i></button>
+            <button class="tool-button color-tool" id="highlightColorButton" type="button" data-color-mode="backColor" title="Выделение цветом" aria-label="Выделить текст цветом" aria-expanded="false"><span>▰</span><i class="color-indicator highlight-indicator"></i></button>
+          </div>
+          <div class="toolbar-group">
+            <button class="tool-button" type="button" data-action="quote" title="Цитата" aria-label="Цитата">❞</button>
+            <button class="tool-button code-tool" type="button" data-action="code" title="Фрагмент кода" aria-label="Фрагмент кода">&lt;/&gt;</button>
+            <button class="tool-button" type="button" data-action="callout" title="Блок Важно" aria-label="Добавить блок Важно">ⓘ</button>
+          </div>
+          <div class="toolbar-group compact-tools">
+            <button class="tool-button active" type="button" data-command="justifyLeft" title="По левому краю" aria-label="По левому краю">≡</button>
+            <button class="tool-button" type="button" data-command="justifyCenter" title="По центру" aria-label="По центру">≣</button>
+            <button class="tool-button" type="button" data-command="justifyRight" title="По правому краю" aria-label="По правому краю">☰</button>
+          </div>
+          <div class="toolbar-group">
+            <button class="tool-button" type="button" data-command="insertHorizontalRule" title="Разделитель" aria-label="Разделитель">―</button>
+            <button class="tool-button" type="button" data-command="insertUnorderedList" title="Маркированный список" aria-label="Маркированный список">☷</button>
+            <button class="tool-button" type="button" data-command="insertOrderedList" title="Нумерованный список" aria-label="Нумерованный список">1.</button>
+          </div>
+          <div class="toolbar-group">
+            <button class="tool-button" type="button" data-action="link" title="Ссылка" aria-label="Добавить ссылку">⌁</button>
+            <button class="tool-button" type="button" data-action="image" title="Изображение" aria-label="Добавить изображение">▧</button>
+            <button class="tool-button" type="button" data-action="video" title="Видео" aria-label="Добавить видео">▶</button>
+            <button class="tool-button" type="button" data-action="attachment" title="Документ" aria-label="Добавить документ">▱</button>
+            <button class="tool-button" type="button" data-action="table" title="Таблица" aria-label="Добавить таблицу">▦</button>
+            <button class="tool-button add-tool" type="button" data-action="add" title="Добавить блок" aria-label="Добавить блок">＋</button>
+          </div>
+        </div>
+
+        <div class="document-canvas">
+          <div class="document-width">
+            <label class="sr-only" for="articleTitle">Название статьи</label>
+            <textarea id="articleTitle" class="title-input" rows="1" maxlength="140" placeholder="Новая статья" spellcheck="true"></textarea>
+            <div class="article-context">
+              <span id="contextSection">Работа в пиццерии</span>
+              <span aria-hidden="true">•</span>
+              <span id="contextStatus">Черновик</span>
+              <button id="inlineSettingsButton" type="button">Изменить параметры</button>
+            </div>
+
+            <div class="article-author-card">
+              <div class="expert-avatar" id="expertAvatarEditor" aria-hidden="true">Э</div>
+              <div class="expert-identity">
+                <span>Эксперт материала</span>
+                <strong id="expertNameEditor">Не указан</strong>
+                <span class="expert-role" id="expertRoleEditor">Должность не указана</span>
+              </div>
+              <div class="article-dates">
+                <span id="publishedDateEditor">Не опубликовано</span>
+                <span id="updatedDateEditor">Не обновлялось</span>
+              </div>
+            </div>
+
+            <label class="sr-only" for="articleIntro">Вступительный текст</label>
+            <textarea id="articleIntro" class="intro-input" rows="3" maxlength="600" placeholder="Кратко расскажите, о чём статья и кому она поможет"></textarea>
+
+            <div id="articleEditor" class="article-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Содержание статьи" data-placeholder="Начните писать или нажмите плюс, чтобы добавить блок"></div>
+
+            <button class="insert-block-button" id="insertBlockButton" type="button"><span aria-hidden="true">＋</span> Добавить блок</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="readerView" class="reader-view" hidden aria-label="Предпросмотр статьи">
+        <div class="reader-tools">
+          <div class="reader-test-settings">
+            <label>
+              Тестовая роль
+              <select id="viewerRole">
+                <option value="editor">Редактор</option>
+                <option value="general">Сотрудник</option>
+                <option value="uk">Сотрудник УК</option>
+                <option value="franchise">Франчайзи</option>
+              </select>
+            </label>
+            <label>
+              Вы вошли как
+              <input id="currentUserName" type="text" maxlength="100" readonly>
+            </label>
+          </div>
+          <div class="device-switch" role="group" aria-label="Размер предпросмотра">
+            <button class="device-button active" id="desktopPreviewButton" type="button" aria-pressed="true">Компьютер</button>
+            <button class="device-button" id="mobilePreviewButton" type="button" aria-pressed="false">Телефон</button>
+          </div>
+        </div>
+
+        <div class="reader-stage">
+          <article id="articlePreview" class="article-preview">
+            <div id="accessDenied" class="access-denied" hidden>
+              <span class="lock-icon" aria-hidden="true">●</span>
+              <h2>Материал недоступен</h2>
+              <p>У выбранной роли нет доступа к этой статье.</p>
+            </div>
+            <div id="previewContent">
+              <div class="preview-topline">
+                <div class="preview-pills"><span id="previewSection" class="section-pill"></span><span id="previewAccess" class="access-pill"></span></div>
+                <details class="viewers-details" id="viewersDetails">
+                  <summary><span aria-hidden="true">◉</span> <strong id="viewersCount">0</strong><span class="viewers-label"> посмотрели</span></summary>
+                  <div class="people-popover"><strong>Кто посмотрел статью</strong><ul id="viewersList"></ul></div>
+                </details>
+              </div>
+              <h1 id="previewTitle"></h1>
+              <div class="preview-author-card">
+                <div class="expert-avatar" id="expertAvatarPreview" aria-hidden="true">Э</div>
+                <div class="expert-identity"><span>Эксперт материала</span><strong id="previewExpert"></strong><span class="expert-role" id="previewExpertRole"></span></div>
+                <div class="preview-meta">
+                  <span id="previewPublished"></span>
+                  <span id="previewUpdated"></span>
+                  <span id="previewVersion"></span>
+                </div>
+              </div>
+              <p id="previewIntro" class="preview-intro"></p>
+              <div id="previewBody" class="preview-body"></div>
+              <footer class="article-engagement">
+                <div class="feedback-card">
+                  <div><strong>Статья была полезна?</strong><span>Ваш ответ поможет улучшать Базу знаний</span></div>
+                  <div class="feedback-buttons">
+                    <button id="helpfulYesButton" type="button" data-feedback="yes" aria-pressed="false">👍 Да <span id="helpfulYesCount" class="feedback-count">0</span></button>
+                    <button id="helpfulNoButton" type="button" data-feedback="no" aria-pressed="false">👎 Нет <span id="helpfulNoCount" class="feedback-count">0</span></button>
+                  </div>
+                </div>
+                <details class="feedback-details" id="feedbackDetails">
+                  <summary>Кто оценил статью: <strong id="feedbackPeopleCount">0</strong></summary>
+                  <div class="feedback-people-grid">
+                    <div><strong class="yes-heading">Ответили «Да»</strong><ul id="helpfulYesPeople"></ul></div>
+                    <div><strong class="no-heading">Ответили «Нет»</strong><ul id="helpfulNoPeople"></ul></div>
+                  </div>
+                </details>
+                <section class="comments-section" aria-labelledby="commentsTitle">
+                  <div class="comments-heading"><h2 id="commentsTitle">Комментарии</h2><span id="commentsCount">0</span></div>
+                  <div id="commentsList" class="comments-list"></div>
+                  <label for="commentField">Оставить комментарий</label>
+                  <textarea id="commentField" rows="3" maxlength="1000" placeholder="Напишите вопрос, уточнение или предложение"></textarea>
+                  <small class="identity-hint">Комментарий будет опубликован от вашего имени в корпоративной учётной записи.</small>
+                  <button class="button secondary" id="addCommentButton" type="button">Отправить комментарий</button>
+                </section>
+              </footer>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="popover-menu" id="moreMenu" hidden>
+    <button id="fillSampleButton" type="button">Заполнить примером</button>
+    <button id="copyLinkButton" type="button">Скопировать ссылку</button>
+    <button id="clearDraftButton" class="danger-text" type="button">Очистить черновик</button>
+  </div>
+
+  <div class="color-popover" id="colorPopover" hidden role="dialog" aria-label="Выбор цвета">
+    <div class="color-popover-heading">
+      <strong id="colorPopoverTitle">Цвет текста</strong>
+      <button id="resetColorButton" type="button">По умолчанию</button>
+    </div>
+    <div class="color-grid" role="group" aria-label="Палитра цветов">
+      <button type="button" data-color="#22252a" style="--swatch:#22252a" aria-label="Чёрный"></button>
+      <button type="button" data-color="#667085" style="--swatch:#667085" aria-label="Серый"></button>
+      <button type="button" data-color="#e6001e" style="--swatch:#e6001e" aria-label="Красный"></button>
+      <button type="button" data-color="#c2410c" style="--swatch:#c2410c" aria-label="Оранжевый"></button>
+      <button type="button" data-color="#a16207" style="--swatch:#a16207" aria-label="Жёлтый"></button>
+      <button type="button" data-color="#168447" style="--swatch:#168447" aria-label="Зелёный"></button>
+      <button type="button" data-color="#087a80" style="--swatch:#087a80" aria-label="Бирюзовый"></button>
+      <button type="button" data-color="#1677d2" style="--swatch:#1677d2" aria-label="Синий"></button>
+      <button type="button" data-color="#6546c8" style="--swatch:#6546c8" aria-label="Фиолетовый"></button>
+      <button type="button" data-color="#f7c8ce" style="--swatch:#f7c8ce" aria-label="Светло-красный"></button>
+      <button type="button" data-color="#fff0a8" style="--swatch:#fff0a8" aria-label="Светло-жёлтый"></button>
+      <button type="button" data-color="#bcebd0" style="--swatch:#bcebd0" aria-label="Светло-зелёный"></button>
+      <button type="button" data-color="#c9e9ff" style="--swatch:#c9e9ff" aria-label="Светло-синий"></button>
+      <button type="button" data-color="#ddd4ff" style="--swatch:#ddd4ff" aria-label="Светло-фиолетовый"></button>
+    </div>
+    <label class="custom-color">Свой цвет <input id="customColorInput" type="color" value="#e6001e"></label>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" id="settingsForm">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">Параметры статьи</p><h2>Публикация и доступ</h2></div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </div>
+
+      <label>Раздел
+        <select id="sectionField">
+          <option>Работа в пиццерии</option>
+          <option>Управляющая компания</option>
+          <option>Обучение</option>
+          <option>Франчайзи</option>
+        </select>
+      </label>
+
+      <label>Родительский материал
+        <select id="parentField">
+          <option value="">В корне раздела</option>
+          <option>Приёмка и хранение товара</option>
+          <option>Стандарты смены</option>
+          <option>Регламенты отделов</option>
+          <option>Программы обучения</option>
+        </select>
+      </label>
+
+      <label>Кто может читать
+        <select id="accessField">
+          <option value="general">Все сотрудники</option>
+          <option value="uk">Только управляющая компания</option>
+          <option value="franchise">Только франчайзи</option>
+        </select>
+      </label>
+
+      <label>Кто может редактировать
+        <select id="editAccessField" disabled>
+          <option value="all_editors">Редакторы и менеджеры Базы знаний</option>
+        </select>
+        <small>Право назначается сотруднику через его корпоративную учётную запись.</small>
+      </label>
+
+      <div class="permission-summary">
+        <strong>Как работают права</strong>
+        <span id="permissionSummaryText">Читать могут все сотрудники. Редактировать — автор и назначенные редакторы.</span>
+      </div>
+
+      <fieldset class="settings-group">
+        <legend>Эксперт и даты</legend>
+        <label>ФИО эксперта <span aria-hidden="true">*</span>
+          <input id="expertNameField" type="text" maxlength="100" placeholder="Например, Маргарита Стекольникова">
+        </label>
+
+        <label>Должность эксперта
+          <input id="expertRoleField" type="text" maxlength="140" placeholder="Например, руководитель отдела качества">
+        </label>
+
+        <label>Дата публикации
+          <input id="publicationDateField" type="date">
+          <small>Можно указать вручную при переносе старой статьи. Если оставить пустой, дата появится автоматически при первой публикации.</small>
+        </label>
+
+        <div class="automatic-date-note"><strong>Дата обновления</strong><span id="settingsUpdatedDate">Появится автоматически после сохранения</span></div>
+      </fieldset>
+
+      <div class="expert-photo-setting">
+        <div class="expert-avatar" id="expertAvatarSettings" aria-hidden="true">Э</div>
+        <div><strong>Фото эксперта</strong><span>Квадратное изображение до 5 МБ</span></div>
+        <button class="button ghost" id="chooseExpertPhotoButton" type="button">Выбрать фото</button>
+        <button class="button ghost danger-text" id="removeExpertPhotoButton" type="button">Удалить</button>
+      </div>
+
+      <label>Версия
+        <input id="versionField" type="text" maxlength="20" value="1.0">
+      </label>
+
+      <label>Связанный материал
+        <input id="relatedField" type="text" maxlength="160" placeholder="Курс, регламент или другая статья">
+      </label>
+
+      <div class="dialog-actions">
+        <button class="button ghost" value="cancel">Отмена</button>
+        <button class="button primary" id="applySettingsButton" value="default">Применить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="blockDialog" class="block-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Структура статьи</p><h2>Добавить блок</h2></div>
+      <button class="icon-button" id="closeBlockDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <div class="block-grid">
+      <button type="button" data-block="heading"><span>H2</span><strong>Заголовок</strong><small>Новый смысловой раздел</small></button>
+      <button type="button" data-block="callout"><span>!</span><strong>Важный блок</strong><small>Информация, успех, ошибка или заметка</small></button>
+      <button type="button" data-block="checklist"><span>✓</span><strong>Чек-лист</strong><small>Последовательность проверки</small></button>
+      <button type="button" data-block="image"><span>▧</span><strong>Изображение</strong><small>На всю ширину или сбоку от текста</small></button>
+      <button type="button" data-block="video"><span>▶</span><strong>Видео</strong><small>Загрузить файл или вставить ссылку</small></button>
+      <button type="button" data-block="attachment"><span>▱</span><strong>Документ</strong><small>Word, PDF, Excel или HTML</small></button>
+      <button type="button" data-block="table"><span>▦</span><strong>Таблица</strong><small>Любое число строк и столбцов</small></button>
+      <button type="button" data-block="related"><span>→</span><strong>Связанный материал</strong><small>Курс или другая статья</small></button>
+    </div>
+  </dialog>
+
+  <dialog id="calloutDialog" class="choice-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Важный блок</p><h2>Выберите оформление</h2></div>
+      <button class="icon-button" data-close-dialog="calloutDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <div class="callout-choices">
+      <button type="button" data-callout="info"><span>ⓘ</span><strong>Информация</strong><small>Пояснение или полезный контекст</small></button>
+      <button type="button" data-callout="success"><span>✓</span><strong>Успешно</strong><small>Правильное действие или результат</small></button>
+      <button type="button" data-callout="danger"><span>×</span><strong>Ошибка</strong><small>Запрет или критичное предупреждение</small></button>
+      <button type="button" data-callout="note"><span>☆</span><strong>Обратите внимание</strong><small>Правило, которое важно запомнить</small></button>
+    </div>
+  </dialog>
+
+  <dialog id="videoDialog" class="form-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Медиа</p><h2>Добавить видео</h2></div>
+      <button class="icon-button" data-close-dialog="videoDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <label>Видеофайл
+      <input id="videoFileField" type="file" accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg">
+    </label>
+    <div class="dialog-divider"><span>или</span></div>
+    <label>Прямая ссылка на видеофайл
+      <input id="videoUrlField" type="url" placeholder="https://…/video.mp4">
+    </label>
+    <label>Подпись
+      <input id="videoCaptionField" type="text" maxlength="160" placeholder="Например: Как принять поставку">
+    </label>
+    <p class="dialog-hint">Загруженный файл сохраняется в защищённом хранилище тестовой базы и воспроизводится прямо в статье.</p>
+    <div class="dialog-actions">
+      <button class="button ghost" data-close-dialog="videoDialog" type="button">Отмена</button>
+      <button class="button primary" id="insertVideoButton" type="button">Добавить видео</button>
+    </div>
+  </dialog>
+
+  <dialog id="tableDialog" class="form-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Структура</p><h2>Добавить таблицу</h2></div>
+      <button class="icon-button" data-close-dialog="tableDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <div class="table-options">
+      <label>Столбцов
+        <input id="tableColumnsField" type="number" min="1" step="1" value="3" inputmode="numeric">
+      </label>
+      <label>Строк
+        <input id="tableRowsField" type="number" min="1" step="1" value="4" inputmode="numeric">
+      </label>
+    </div>
+    <label class="checkbox-label"><input id="tableHeaderField" type="checkbox" checked> Первая строка — заголовки</label>
+    <div class="dialog-actions">
+      <button class="button ghost" data-close-dialog="tableDialog" type="button">Отмена</button>
+      <button class="button primary" id="insertTableButton" type="button">Добавить таблицу</button>
+    </div>
+  </dialog>
+
+  <dialog id="linkDialog" class="form-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Гиперссылка</p><h2>Добавить ссылку</h2></div>
+      <button class="icon-button" data-close-dialog="linkDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <label>Адрес ссылки
+      <input id="linkUrlField" type="url" placeholder="https://example.ru">
+    </label>
+    <label>Название ссылки
+      <input id="linkLabelField" type="text" maxlength="200" placeholder="Можно оставить пустым — тогда покажется сама ссылка">
+    </label>
+    <p class="dialog-hint">Если перед открытием окна был выделен текст, он станет названием ссылки.</p>
+    <div class="dialog-actions">
+      <button class="button ghost" data-close-dialog="linkDialog" type="button">Отмена</button>
+      <button class="button primary" id="insertLinkButton" type="button">Добавить ссылку</button>
+    </div>
+  </dialog>
+
+  <dialog id="imageDialog" class="form-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Изображение</p><h2>Добавить изображение</h2></div>
+      <button class="icon-button" data-close-dialog="imageDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <label>Файл изображения
+      <input id="imageFileField" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label>Расположение
+      <select id="imagePositionField">
+        <option value="full">На всю ширину</option>
+        <option value="left">Слева от текста</option>
+        <option value="right">Справа от текста</option>
+      </select>
+    </label>
+    <label>Подпись
+      <input id="imageCaptionField" type="text" maxlength="160" placeholder="Описание изображения">
+    </label>
+    <div class="dialog-actions">
+      <button class="button ghost" data-close-dialog="imageDialog" type="button">Отмена</button>
+      <button class="button primary" id="insertImageButton" type="button">Добавить изображение</button>
+    </div>
+  </dialog>
+
+  <dialog id="attachmentDialog" class="form-dialog">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">Документ</p><h2>Прикрепить файл</h2></div>
+      <button class="icon-button" data-close-dialog="attachmentDialog" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <label>Файл
+      <input id="attachmentFileField" type="file" accept=".doc,.docx,.pdf,.xls,.xlsx,.html,.htm,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/html">
+    </label>
+    <label>Название в статье
+      <input id="attachmentLabelField" type="text" maxlength="200" placeholder="Если пусто, будет использовано имя файла">
+    </label>
+    <p class="dialog-hint">Поддерживаются Word, PDF, Excel и HTML. Файл сохраняется в защищённом хранилище тестовой базы.</p>
+    <div class="dialog-actions">
+      <button class="button ghost" data-close-dialog="attachmentDialog" type="button">Отмена</button>
+      <button class="button primary" id="insertAttachmentButton" type="button">Добавить документ</button>
+    </div>
+  </dialog>
+
+  <input id="expertPhotoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+</div>
+<script src="/assets/skoro_kb/js/kb.js" defer></script>
+{% endblock %}

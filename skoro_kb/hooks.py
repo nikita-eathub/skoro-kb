@@ -5,21 +5,37 @@ app_description = "Knowledge base app for Skoro Pizza on Frappe"
 app_email = "pizzaskoro@gmail.com"
 app_license = "mit"
 
+after_install = "skoro_kb.install.after_install"
+after_migrate = ["skoro_kb.install.after_migrate"]
+
+permission_query_conditions = {
+	"KB Article": "skoro_kb.permissions.article_query",
+}
+
+has_permission = {
+	"KB Article": "skoro_kb.permissions.article_has_permission",
+}
+
+user_data_fields = [
+	{"doctype": "KB Article View", "filter_by": "user"},
+	{"doctype": "KB Article Feedback", "filter_by": "user"},
+	{"doctype": "KB Article Comment", "filter_by": "user"},
+]
+
 # Apps
 # ------------------
 
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "skoro_kb",
-# 		"logo": "/assets/skoro_kb/logo.png",
-# 		"title": "Skoro KB",
-# 		"route": "/skoro_kb",
-# 		"has_permission": "skoro_kb.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "skoro_kb",
+		"logo": "/assets/skoro_kb/images/logo-sp.png",
+		"title": "База знаний",
+		"route": "/kb",
+	}
+]
 
 # Includes in <head>
 # ------------------
@@ -255,4 +271,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

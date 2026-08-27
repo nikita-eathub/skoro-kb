@@ -1,0 +1,189 @@
+{
+ "actions": [],
+ "creation": "2026-08-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "slug",
+  "status",
+  "version",
+  "structure_section",
+  "section",
+  "parent_article",
+  "access_scope",
+  "content_section",
+  "intro",
+  "content",
+  "expert_section",
+  "expert_name",
+  "expert_role",
+  "expert_photo",
+  "column_break_1",
+  "publication_date",
+  "published_by",
+  "related_material",
+  "allow_comments"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Название",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "slug",
+   "fieldtype": "Data",
+   "label": "Идентификатор",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Статус",
+   "options": "Draft\nPublished\nArchived",
+   "reqd": 1
+  },
+  {
+   "default": "1.0",
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Версия",
+   "reqd": 1
+  },
+  {
+   "fieldname": "structure_section",
+   "fieldtype": "Section Break",
+   "label": "Структура и доступ"
+  },
+  {
+   "fieldname": "section",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Раздел",
+   "options": "KB Section",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "parent_article",
+   "fieldtype": "Link",
+   "label": "Родительская статья",
+   "options": "KB Article"
+  },
+  {
+   "default": "All Employees",
+   "fieldname": "access_scope",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Кто может читать",
+   "options": "All Employees\nUK Only\nFranchise Only",
+   "reqd": 1
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Содержание"
+  },
+  {
+   "fieldname": "intro",
+   "fieldtype": "Small Text",
+   "label": "Вступительный текст"
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Long Text",
+   "label": "HTML статьи"
+  },
+  {
+   "fieldname": "expert_section",
+   "fieldtype": "Section Break",
+   "label": "Эксперт и публикация"
+  },
+  {
+   "fieldname": "expert_name",
+   "fieldtype": "Data",
+   "label": "ФИО эксперта"
+  },
+  {
+   "fieldname": "expert_role",
+   "fieldtype": "Data",
+   "label": "Должность эксперта"
+  },
+  {
+   "fieldname": "expert_photo",
+   "fieldtype": "Attach Image",
+   "label": "Фото эксперта"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "publication_date",
+   "fieldtype": "Datetime",
+   "label": "Дата публикации"
+  },
+  {
+   "fieldname": "published_by",
+   "fieldtype": "Link",
+   "label": "Опубликовал",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "related_material",
+   "fieldtype": "Data",
+   "label": "Связанный материал"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_comments",
+   "fieldtype": "Check",
+   "label": "Разрешить комментарии"
+  }
+ ],
+ "links": [],
+ "modified": "2026-08-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Skoro KB",
+ "name": "KB Article",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "KB Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "report": 1,
+   "role": "KB Editor",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "All"
+  }
+ ],
+ "search_fields": "title,expert_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

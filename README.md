@@ -1,17 +1,16 @@
 # Skoro KB
 
-Кастомное Frappe-приложение базы знаний «Скоро Пицца» (server-side: DocType'ы, API,
-hooks). Разрабатывается и обкатывается на тестовом сайте **kb-test.sp-disk.ru**,
-который поднят вторым сайтом на общем bench рядом с боевым `lms.sp-disk.ru`
-(мультисайт по Host-заголовку, отдельная БД). Прод LMS этим приложением не затрагивается.
+Кастомное Frappe-приложение базы знаний «Скоро Пицца»: структура статей,
+редактор, права чтения, просмотры, оценки и комментарии. Первый запуск —
+только на **kb-test.sp-disk.ru**. Боевой `lms.sp-disk.ru` не должен переключаться на тестовый
+образ.
 
 ## Где живёт
 
 - **Стенд:** `/opt/skoropizza/lms/` (compose-проект `lms`) на VPS 186.246.4.75.
-- **Образ:** `frappe-lms:v2` собирается из frappe_docker с `apps.json`
-  (frappe v16 + payments + lms + wiki + **skoro_kb**). Приложение попадает в образ
-  на этапе сборки — просто добавить сюда репозиторий в `apps.json` и пересобрать.
-- **Сайт разработки:** `kb-test.sp-disk.ru` (НЕ default, роутинг по Host).
+- **Образ:** собирается тем же пайплайном, что и LMS; приложение добавляется в `apps.json`.
+- **Тестовый сайт:** `kb-test.sp-disk.ru` (не default; отдельная база данных). Его фактическое
+  создание и доступность нужно проверить перед установкой.
 
 ## Установка на bench
 
@@ -27,9 +26,8 @@ bench, т.к. `apps/` запечён в Docker-образ):
 
 ```bash
 cd /opt/skoropizza/lms
-# пересобрать образ (см. lms/README.md — контекст = корень frappe_docker, apps.json через --secret)
-docker compose -p lms up -d --force-recreate backend queue-short queue-long scheduler websocket frontend
-# установить ТОЛЬКО на тестовый сайт:
+# сначала собрать отдельный образ-кандидат и проверить наличие skoro_kb внутри
+# затем установить ТОЛЬКО на тестовый сайт:
 docker compose -p lms exec backend bench --site kb-test.sp-disk.ru install-app skoro_kb
 ```
 

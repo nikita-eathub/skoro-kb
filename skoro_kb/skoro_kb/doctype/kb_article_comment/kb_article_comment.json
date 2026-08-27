@@ -1,0 +1,26 @@
+{
+ "actions": [],
+ "creation": "2026-08-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["article", "user", "comment", "status"],
+ "fields": [
+  {"fieldname": "article", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Статья", "options": "KB Article", "reqd": 1, "search_index": 1},
+  {"fieldname": "user", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Сотрудник", "options": "User", "reqd": 1, "search_index": 1},
+  {"fieldname": "comment", "fieldtype": "Long Text", "label": "Комментарий", "reqd": 1},
+  {"default": "Visible", "fieldname": "status", "fieldtype": "Select", "in_list_view": 1, "in_standard_filter": 1, "label": "Статус", "options": "Visible\nHidden", "reqd": 1}
+ ],
+ "links": [],
+ "modified": "2026-08-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Skoro KB",
+ "name": "KB Article Comment",
+ "owner": "Administrator",
+ "permissions": [
+  {"delete": 1, "export": 1, "read": 1, "report": 1, "role": "KB Manager", "write": 1},
+  {"read": 1, "report": 1, "role": "KB Editor", "write": 1}
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

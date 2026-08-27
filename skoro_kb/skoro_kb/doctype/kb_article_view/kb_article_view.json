@@ -1,0 +1,29 @@
+{
+ "actions": [],
+ "autoname": "field:view_key",
+ "creation": "2026-08-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["view_key", "article", "user", "first_viewed_at", "last_viewed_at", "view_count"],
+ "fields": [
+  {"fieldname": "view_key", "fieldtype": "Data", "hidden": 1, "label": "Ключ", "unique": 1},
+  {"fieldname": "article", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Статья", "options": "KB Article", "reqd": 1, "search_index": 1},
+  {"fieldname": "user", "fieldtype": "Link", "in_list_view": 1, "in_standard_filter": 1, "label": "Сотрудник", "options": "User", "reqd": 1, "search_index": 1},
+  {"fieldname": "first_viewed_at", "fieldtype": "Datetime", "label": "Первый просмотр", "reqd": 1},
+  {"fieldname": "last_viewed_at", "fieldtype": "Datetime", "in_list_view": 1, "label": "Последний просмотр", "reqd": 1},
+  {"default": "1", "fieldname": "view_count", "fieldtype": "Int", "in_list_view": 1, "label": "Количество открытий", "reqd": 1}
+ ],
+ "links": [],
+ "modified": "2026-08-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Skoro KB",
+ "name": "KB Article View",
+ "owner": "Administrator",
+ "permissions": [
+  {"export": 1, "read": 1, "report": 1, "role": "KB Manager"},
+  {"read": 1, "report": 1, "role": "KB Editor"}
+ ],
+ "sort_field": "last_viewed_at",
+ "sort_order": "DESC",
+ "states": []
+}
