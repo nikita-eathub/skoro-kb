@@ -12,3 +12,8 @@ env/
 .DS_Store
 skoro_kb/public/dist/
 .frappe/
+
+# iiko agent
+tools/iiko_agent/.env
+iiko_audit.jsonl
+*.egg-info/
