@@ -3,7 +3,7 @@ name = "skoro-iiko-agent"
 version = "0.1.0"
 description = "MCP-агент «Скоро Пиццы» для iiko Server API: сотрудники, блюда, приказы о ценах"
 requires-python = ">=3.10"
-dependencies = ["mcp>=1.2", "httpx>=0.27"]
+dependencies = ["mcp>=1.2,<2", "httpx>=0.27"]
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
